@@ -1,4 +1,4 @@
-import { CONTRACTS, POOL_ABI, ORACLE_ABI, TOKEN_SYMBOLS } from "../contracts.js";
+import { CONTRACTS, POOL_ABI, ORACLE_ABI, TOKEN_SYMBOLS, TOKENS } from "../contracts.js";
 import { callFunction, getBlockNumber, safeCall } from "../rpc.js";
 
 const SECONDS_PER_YEAR = 31_536_000n;
@@ -53,7 +53,9 @@ export async function getMarkets(): Promise<MarketsResult | { error: string; rpc
       "getReservesList",
       []
     );
-    const addresses = reserveAddresses as string[];
+    // Filter to active whitelisted tokens only (excludes stale reserves from prior testnet deploys)
+    const ACTIVE_ADDRESSES = new Set(Object.values(TOKENS).map(a => a.toLowerCase()));
+    const addresses = (reserveAddresses as string[]).filter(a => ACTIVE_ADDRESSES.has(a.toLowerCase()));
 
     // 3. Get prices for all reserves
     const [prices] = await callFunction(

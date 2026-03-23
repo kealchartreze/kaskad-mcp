@@ -18,6 +18,7 @@ export const TOKENS: Record<string, string> = {
   WETH:  "0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629",
   WIKAS: "0xe1DA8919f262Ee86f9BE05059C9280142CF23f48",
 };
+// Note: dApp UI shows IKAS/IGRA as display names for WIKAS/KSKD on testnet — these are the on-chain addresses
 
 // Reverse mapping: address → symbol
 export const TOKEN_SYMBOLS: Record<string, string> = Object.fromEntries(
