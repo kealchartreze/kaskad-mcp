@@ -1,7 +1,7 @@
 export declare const CHAIN_ID = 38836;
 export declare const RPC_URL = "https://galleon-testnet.igralabs.com:8545";
 export declare const CONTRACTS: {
-    readonly priceOracle: "0x4f29f479D3e6c41aD3fC8C7c8D6f423Cb2784b8e";
+    readonly priceOracle: "0xc1198A9d400306a0406fD3E3Ad67140b3D059f48";
     readonly poolProxy: "0xA1D84fc43f7F2D803a2d64dbBa4A90A9A79E3F24";
     readonly poolAddressesProvider: "0x9DB9797733FE5F734724Aa05D29Fa39563563Af5";
     readonly uiPoolDataProvider: "0xbe38809914b552f295cD3e8dF2e77b3DA69cBC8b";

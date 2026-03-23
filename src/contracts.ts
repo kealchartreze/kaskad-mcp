@@ -3,7 +3,7 @@ export const CHAIN_ID = 38836;
 export const RPC_URL = "https://galleon-testnet.igralabs.com:8545";
 
 export const CONTRACTS = {
-  priceOracle:           "0x4f29f479D3e6c41aD3fC8C7c8D6f423Cb2784b8e",
+  priceOracle:           "0xc1198A9d400306a0406fD3E3Ad67140b3D059f48",
   poolProxy:             "0xA1D84fc43f7F2D803a2d64dbBa4A90A9A79E3F24",
   poolAddressesProvider: "0x9DB9797733FE5F734724Aa05D29Fa39563563Af5",
   uiPoolDataProvider:    "0xbe38809914b552f295cD3e8dF2e77b3DA69cBC8b",
@@ -11,13 +11,14 @@ export const CONTRACTS = {
   activityTracker:       "0xa11FbfB7E69c3D8443335d30c5E6271bEE78b128",
 } as const;
 
+// Token addresses — current deploy (updated from bundle index-DSNj_0fi.js, Mar 23 2026)
 export const TOKENS: Record<string, string> = {
-  KSKD:  "0xd884991BbaB6d5644fFE29000088bbB359AD5e9e",
-  USDC:  "0xb19b36b1456E65E3A6D514D3F715f204BD59f431",
-  WBTC:  "0xA7CEd4eFE5C3aE0e5C26735559A77b1e38950a14",
-  WETH:  "0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629",
-  IKAS:  "0xe1DA8919f262Ee86f9BE05059C9280142CF23f48",  // WIKAS on-chain, IKAS in UI
-  IGRA:  "0x700b6A60ce7EaaEA56F065753d8dcB9653dbAD35",
+  KSKD:  "0x2d17780a59044D49FeEf0AA9cEaB1B6e3161aFf7",
+  USDC:  "0x32F59763c4b7F385DFC1DBB07742DaD4eeEccdb2",
+  WBTC:  "0x9dAc4c79bE2C541BE3584CE5244F3942554D6355",
+  WETH:  "0xB4129cEBD85bDEcdD775f539Ec8387619a0f1FAC",
+  IKAS:  "0xA7CEd4eFE5C3aE0e5C26735559A77b1e38950a14",  // WIKAS on-chain, IKAS in UI
+  IGRA:  "0x04443457b050BBaa195bb71Ef6CCDb519CcB1f0f",
 };
 
 // Reverse mapping: address → symbol
