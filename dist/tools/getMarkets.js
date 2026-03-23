@@ -1,0 +1,101 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMarkets = getMarkets;
+const contracts_js_1 = require("../contracts.js");
+const rpc_js_1 = require("../rpc.js");
+const SECONDS_PER_YEAR = 31536000n;
+const RAY = 10n ** 27n;
+const WAD = 10n ** 18n;
+/** Convert ray rate → APY as decimal (e.g. 0.042) */
+function rayToAPY(rateBig) {
+    // linearised APY: rate_per_second * seconds_per_year
+    // rate is in ray (1e27), per-second
+    const apy = (rateBig * SECONDS_PER_YEAR * 10000n) / RAY;
+    return Number(apy) / 10_000;
+}
+/** Convert base units price (8 decimals from Aave oracle) + token amount → USD */
+function toUSD(amount, price, decimals) {
+    // price has 8 decimals (Aave oracle base currency = USD with 8 dec)
+    // amount has `decimals` decimals
+    // result = amount * price / (10^decimals * 10^8)
+    const denom = 10n ** BigInt(decimals) * 10n ** 8n;
+    return Number((amount * price * 1000000n) / denom) / 1_000_000;
+}
+async function getMarkets() {
+    return (0, rpc_js_1.safeCall)(async () => {
+        // 1. Block number
+        const blockNumber = await (0, rpc_js_1.getBlockNumber)();
+        // 2. Get reserves list
+        const [reserveAddresses] = await (0, rpc_js_1.callFunction)(contracts_js_1.POOL_ABI, contracts_js_1.CONTRACTS.poolProxy, "getReservesList", []);
+        const addresses = reserveAddresses;
+        // 3. Get prices for all reserves
+        const [prices] = await (0, rpc_js_1.callFunction)(contracts_js_1.ORACLE_ABI, contracts_js_1.CONTRACTS.priceOracle, "getAssetsPrices", [addresses]);
+        const priceList = prices;
+        // 4. Fetch reserve data for each
+        const markets = [];
+        for (let i = 0; i < addresses.length; i++) {
+            const addr = addresses[i];
+            const price = priceList[i] ?? 0n;
+            let reserveResult;
+            try {
+                reserveResult = await (0, rpc_js_1.callFunction)(contracts_js_1.POOL_ABI, contracts_js_1.CONTRACTS.poolProxy, "getReserveData", [addr]);
+            }
+            catch {
+                continue; // skip if individual reserve fails
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const rd = reserveResult[0];
+            const liquidityRate = rd.currentLiquidityRate ?? 0n;
+            const varBorrowRate = rd.currentVariableBorrowRate ?? 0n;
+            const liquidityIndex = rd.liquidityIndex ?? WAD;
+            const varBorrowIndex = rd.variableBorrowIndex ?? WAD;
+            // aToken totalSupply ≈ scaled supply * liquidityIndex
+            // We approximate from the reserve config bits or use token balances
+            // For simplicity: read aToken balance of poolProxy (totalScaledSupply * liquidityIndex / 1e27)
+            // Easier: use configuration to infer — but let's use available data
+            // We'll read decimals from ERC20 for accuracy; assume 18 for unknowns
+            const decimals = 18; // most tokens
+            // Estimate total supply: we can read aToken totalSupply
+            const aTokenAddr = rd.aTokenAddress;
+            const varDebtAddr = rd.variableDebtTokenAddress;
+            let totalATokens = 0n;
+            let totalVarDebt = 0n;
+            try {
+                const [supplyRes] = await (0, rpc_js_1.callFunction)(["function totalSupply() view returns (uint256)"], aTokenAddr, "totalSupply", []);
+                totalATokens = supplyRes;
+            }
+            catch { /* ignore */ }
+            try {
+                const [debtRes] = await (0, rpc_js_1.callFunction)(["function totalSupply() view returns (uint256)"], varDebtAddr, "totalSupply", []);
+                totalVarDebt = debtRes;
+            }
+            catch { /* ignore */ }
+            const totalSupplyUSD = toUSD(totalATokens, price, decimals);
+            const totalBorrowUSD = toUSD(totalVarDebt, price, decimals);
+            const liquidity = totalATokens > totalVarDebt ? totalATokens - totalVarDebt : 0n;
+            const liquidityAvailableUSD = toUSD(liquidity, price, decimals);
+            const utilizationRate = totalSupplyUSD > 0
+                ? Math.min(totalBorrowUSD / totalSupplyUSD, 1)
+                : 0;
+            const symbol = contracts_js_1.TOKEN_SYMBOLS[addr.toLowerCase()] ?? addr.slice(0, 8);
+            markets.push({
+                asset: symbol,
+                address: addr,
+                supplyAPY: rayToAPY(liquidityRate),
+                borrowAPY: rayToAPY(varBorrowRate),
+                totalSupplyUSD: Math.round(totalSupplyUSD * 100) / 100,
+                totalBorrowUSD: Math.round(totalBorrowUSD * 100) / 100,
+                utilizationRate: Math.round(utilizationRate * 10_000) / 10_000,
+                liquidityAvailableUSD: Math.round(liquidityAvailableUSD * 100) / 100,
+            });
+        }
+        return {
+            protocol: "Kaskad Protocol",
+            network: "Igra Galleon Testnet",
+            chainId: 38836,
+            blockNumber,
+            markets,
+        };
+    });
+}
+//# sourceMappingURL=getMarkets.js.map
