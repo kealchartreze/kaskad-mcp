@@ -2,6 +2,15 @@
 
 MCP (Model Context Protocol) server for **Kaskad Protocol** — reads live on-chain state from the Igra Galleon Testnet and exposes it via three MCP tools.
 
+## Maintenance Routine
+
+Before trusting MCP output or publishing any data:
+
+1. **Cross-reference against live dApp** — open `testnet.kaskad.live` and verify at least one APY figure matches `getMarkets()` output. Divergence = address or formula issue.
+2. **After any testnet redeploy** — re-extract token addresses from the current JS bundle (`/assets/index-*.js` — filename changes each deploy), update `src/contracts.ts`, rebuild and push.
+3. **APY formula** — `currentLiquidityRate` from Aave `getReserveData` is an annual rate in RAY (1e27). Correct: `rate / 1e25` = APY%. Do NOT multiply by `seconds_per_year`.
+4. **Bundle extraction** — always fetch HTML first to find the current bundle filename before extracting addresses.
+
 ## Quick Start
 
 ```bash
