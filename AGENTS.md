@@ -113,6 +113,42 @@ cast send 0xA1D84fc43f7F2D803a2d64dbBa4A90A9A79E3F24 \
 
 ---
 
+## 5. Tokenomics Context for Agents
+
+Understanding KSKD tokenomics is critical for yield interpretation. APYs on Kaskad are a combination of real yield (interest from borrowers) and KSKD emission incentives. Without this context, agents will misread APY signals.
+
+### KSKD Token
+- **Token:** KSKD
+- **FDV at launch:** $12.5M | **Price day 1:** $0.0125
+- **Testnet address:** `0x2d17780a59044D49FeEf0AA9cEaB1B6e3161aFf7`
+- **Oracle status (pre-TGE):** Static price — no live market data. APY calculations using KSKD price are indicative only.
+- **Oracle status (post-TGE):** Live price feed via Kaskad oracle (median of 6 sources).
+
+### Emission Schedule
+- **Emission vault:** 39% of total KSKD supply, hardcoded — not governance-adjustable.
+- **Duration:** 36 months from mainnet launch.
+- **Epoch length:** 30 days (mainnet) / 4 days (testnet).
+- **Implication:** Supply APY is partially emission-driven. As the vault depletes over 36 months, emission APY declines. Real yield (from borrower interest) must grow to compensate. An agent recommending "max supply KSKD" based on current APY must account for this decay curve.
+
+### Emission Split (Governance-Adjustable)
+- **Default split:** ~60% to suppliers / ~40% to borrowers (adjustable via DAO vote within bounded ranges).
+- **Effect:** Higher supply split → higher supply APY → more TVL attraction. Higher borrow split → cheaper borrowing → more utilization. Both affect sustainable yield.
+
+### Uptime Eligibility
+- **Suppliers** must maintain position above a minimum TVL threshold for the full epoch to receive emissions (partial epochs yield proportionally less).
+- **Borrowers** must maintain borrow position above minimum LTV threshold.
+- **Implication:** Agents should not recommend opening/closing positions mid-epoch if the goal is emission capture — timing matters.
+
+### DAO Revenue Routing
+- **65% of protocol revenue** → DAO vault (hardcoded). DAO vote required for allocation (TVL incentives, burn, Kaspa core fund, etc.).
+- **35%** → operational treasury.
+- **Implication:** Protocol revenue is not automatically recycled to LPs — DAO governance determines how it flows back.
+
+### Supported Assets at Launch
+USDC, WETH, USDT, WBTC, stETH — KSKD is **not** listed at TGE due to thin liquidity risk. Agents should not attempt to supply/borrow KSKD as collateral in mainnet launch configuration.
+
+---
+
 ## 4. Ethers.js & Frontend Agents
 
 ```typescript
