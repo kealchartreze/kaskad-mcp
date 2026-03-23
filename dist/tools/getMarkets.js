@@ -27,7 +27,9 @@ async function getMarkets() {
         const blockNumber = await (0, rpc_js_1.getBlockNumber)();
         // 2. Get reserves list
         const [reserveAddresses] = await (0, rpc_js_1.callFunction)(contracts_js_1.POOL_ABI, contracts_js_1.CONTRACTS.poolProxy, "getReservesList", []);
-        const addresses = reserveAddresses;
+        // Filter to active whitelisted tokens only (excludes stale reserves from prior testnet deploys)
+        const ACTIVE_ADDRESSES = new Set(Object.values(contracts_js_1.TOKENS).map(a => a.toLowerCase()));
+        const addresses = reserveAddresses.filter(a => ACTIVE_ADDRESSES.has(a.toLowerCase()));
         // 3. Get prices for all reserves
         const [prices] = await (0, rpc_js_1.callFunction)(contracts_js_1.ORACLE_ABI, contracts_js_1.CONTRACTS.priceOracle, "getAssetsPrices", [addresses]);
         const priceList = prices;
@@ -93,6 +95,8 @@ async function getMarkets() {
             protocol: "Kaskad Protocol",
             network: "Igra Galleon Testnet",
             chainId: 38836,
+            isTestnet: true,
+            apyWarning: "APY figures reflect testnet IRM configuration only — not representative of mainnet rates. Do not use for yield decisions.",
             blockNumber,
             markets,
         };

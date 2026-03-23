@@ -1,4 +1,4 @@
-import { CONTRACTS, POOL_ABI, ORACLE_ABI, TOKEN_SYMBOLS } from "../contracts.js";
+import { CONTRACTS, POOL_ABI, ORACLE_ABI, TOKEN_SYMBOLS, ERC20_ABI } from "../contracts.js";
 import { callFunction, safeCall } from "../rpc.js";
 import { isAddress } from "ethers";
 
@@ -134,7 +134,16 @@ export async function getPosition(
       const suppliedUSD = Number((aBalance * price * 1_000_000n) / (denom * 10n ** 8n)) / 1_000_000;
       const borrowedUSD = Number((debtBalance * price * 1_000_000n) / (denom * 10n ** 8n)) / 1_000_000;
 
-      const symbol = TOKEN_SYMBOLS[addr.toLowerCase()] ?? addr.slice(0, 8);
+      // Resolve symbol: use whitelist first, fall back to on-chain symbol()
+      let symbol = TOKEN_SYMBOLS[addr.toLowerCase()];
+      if (!symbol) {
+        try {
+          const [onChainSym] = await callFunction(ERC20_ABI, addr, "symbol", []);
+          symbol = onChainSym as string;
+        } catch {
+          symbol = addr.slice(0, 8);
+        }
+      }
 
       positions.push({
         asset: symbol,

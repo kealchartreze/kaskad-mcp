@@ -17,7 +17,8 @@ exports.TOKENS = {
     USDC: "0xb19b36b1456E65E3A6D514D3F715f204BD59f431",
     WBTC: "0xA7CEd4eFE5C3aE0e5C26735559A77b1e38950a14",
     WETH: "0xe1Aa25618fA0c7A1CFDab5d6B456af611873b629",
-    WIKAS: "0xe1DA8919f262Ee86f9BE05059C9280142CF23f48",
+    IKAS: "0xe1DA8919f262Ee86f9BE05059C9280142CF23f48", // WIKAS on-chain, IKAS in UI
+    IGRA: "0x700b6A60ce7EaaEA56F065753d8dcB9653dbAD35",
 };
 // Reverse mapping: address → symbol
 exports.TOKEN_SYMBOLS = Object.fromEntries(Object.entries(exports.TOKENS).map(([sym, addr]) => [addr.toLowerCase(), sym]));

@@ -68,7 +68,17 @@ async function getPosition(userAddress) {
             const denom = 10n ** BigInt(decimals);
             const suppliedUSD = Number((aBalance * price * 1000000n) / (denom * 10n ** 8n)) / 1_000_000;
             const borrowedUSD = Number((debtBalance * price * 1000000n) / (denom * 10n ** 8n)) / 1_000_000;
-            const symbol = contracts_js_1.TOKEN_SYMBOLS[addr.toLowerCase()] ?? addr.slice(0, 8);
+            // Resolve symbol: use whitelist first, fall back to on-chain symbol()
+            let symbol = contracts_js_1.TOKEN_SYMBOLS[addr.toLowerCase()];
+            if (!symbol) {
+                try {
+                    const [onChainSym] = await (0, rpc_js_1.callFunction)(contracts_js_1.ERC20_ABI, addr, "symbol", []);
+                    symbol = onChainSym;
+                }
+                catch {
+                    symbol = addr.slice(0, 8);
+                }
+            }
             positions.push({
                 asset: symbol,
                 address: addr,

@@ -153,6 +153,8 @@ export async function getMarkets(): Promise<MarketsResult | { error: string; rpc
       protocol: "Kaskad Protocol",
       network: "Igra Galleon Testnet",
       chainId: 38836,
+      isTestnet: true,
+      apyWarning: "APY figures reflect testnet IRM configuration only — not representative of mainnet rates. Do not use for yield decisions.",
       blockNumber,
       markets,
     };
