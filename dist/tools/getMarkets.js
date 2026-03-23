@@ -96,7 +96,7 @@ async function getMarkets() {
             network: "Igra Galleon Testnet",
             chainId: 38836,
             isTestnet: true,
-            apyWarning: "APY figures reflect testnet IRM configuration only — not representative of mainnet rates. Do not use for yield decisions.",
+            apyWarning: "APY figures reflect testnet IRM slope params set for stress-testing — not representative of mainnet launch config. KSKD/IGRA use static oracle prices (no live market data pre-launch). Do not use for yield decisions.",
             blockNumber,
             markets,
         };
